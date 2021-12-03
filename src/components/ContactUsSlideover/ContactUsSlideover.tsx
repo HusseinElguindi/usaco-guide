@@ -3,6 +3,7 @@ import { useContext, useEffect, useState } from 'react';
 import { SECTION_LABELS } from '../../../content/ordering';
 import MarkdownLayoutContext from '../../context/MarkdownLayoutContext';
 import UserDataContext from '../../context/UserDataContext/UserDataContext';
+import useContactFormAction from '../../hooks/useContactFormAction';
 import useStickyState from '../../hooks/useStickyState';
 import { ModuleInfo } from '../../models/module';
 import SlideoverForm from './SlideoverForm';
@@ -23,9 +24,9 @@ const Field = ({ label, id, value, onChange, errorMsg = null }) => {
           type="text"
           id={id}
           className={
-            'form-input block w-full sm:text-sm sm:leading-5 transition ease-in-out duration-150 dark:bg-gray-900 dark:border-gray-700' +
+            'input' +
             (errorMsg
-              ? 'pr-10 border-red-300 text-red-900 placeholder-red-300 focus:border-red-300 focus:shadow-outline-red'
+              ? ' pr-10 border-red-300 dark:border-red-300 text-red-900 dark:text-red-300 placeholder-red-300 focus:border-red-300 dark:focus:border-red-300 focus:ring-red-300 dark:focus:ring-red-300'
               : '')
           }
           value={value}
@@ -66,9 +67,9 @@ export default function ContactUsSlideover({
   onClose,
 }: {
   isOpen: boolean;
-  onClose: any;
+  onClose: () => void;
   activeModule?: ModuleInfo;
-}) {
+}): JSX.Element {
   const userSettings = useContext(UserDataContext);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -86,18 +87,20 @@ export default function ContactUsSlideover({
   ];
   const [message, setMessage] = useStickyState('', 'contact_form_message');
   const [showSuccess, setShowSuccess] = useState(false);
+  const [issueLink, setIssueLink] = useState('');
   const [submitEnabled, setSubmitEnabled] = useState(true);
   const [showErrors, setShowErrors] = useState(false);
 
   const markdownContext = useContext(MarkdownLayoutContext);
+  const submitForm = useContactFormAction();
 
   React.useEffect(() => {
     const activeModule = markdownContext?.markdownLayoutInfo;
-    if (activeModule && activeModule instanceof ModuleInfo)
+    if (activeModule && activeModule instanceof ModuleInfo) {
       setLocation(
         `${SECTION_LABELS[activeModule.section]} - ${activeModule.title}`
       );
-    else setLocation('');
+    } else setLocation('');
   }, [markdownContext?.markdownLayoutInfo]);
 
   const { firebaseUser } = useContext(UserDataContext);
@@ -127,35 +130,26 @@ export default function ContactUsSlideover({
       name === '' ||
       email === '' ||
       !validateEmail(email) ||
+      topic === '' ||
       message === ''
     ) {
       return;
     }
-
-    const data = new FormData();
-    data.append('name', name);
-    data.append('email', email);
-    data.append('location', location);
-    data.append('url', window.location.href);
-    data.append('lang', userSettings.lang);
-    data.append('topic', topic);
-    data.append('message', message);
-    data.append(
-      '_subject',
-      `[Contact Us] ${topic || 'Other'} ${location ? `- ${location} ` : ''} - ${
-        email || 'Unknown Email'
-      }`
-    );
     setSubmitEnabled(false);
     try {
-      await fetch('https://formsubmit.co/ajax/usacoguide@gmail.com', {
-        method: 'POST',
-        mode: 'no-cors',
-        body: data,
+      const response = await submitForm({
+        name,
+        email,
+        moduleName: location,
+        url: window.location.href,
+        lang: userSettings.lang,
+        topic,
+        message,
       });
       setTopic('');
       setMessage('');
       setShowSuccess(true);
+      setIssueLink(response.data as string);
     } catch (e) {
       setSubmitEnabled(true);
       alert('Form submission failed: ' + e.message);
@@ -169,15 +163,25 @@ export default function ContactUsSlideover({
       isOpen={isOpen}
       onClose={onClose}
       title="Contact Us"
-      subtitle="Contact us about anything: suggestions, bugs, assistance, and more!"
+      subtitle={
+        <>
+          Contact us about anything: suggestions, bugs, assistance, and more!
+          This will be submitted as a public{' '}
+          <a
+            href="https://github.com/cpinitiative/usaco-guide/issues"
+            target="_blank"
+            rel="noreferrer"
+            className="underline"
+          >
+            Github issue
+          </a>
+          .
+        </>
+      }
       footerButtons={
         <>
           <span className="inline-flex rounded-md shadow-sm">
-            <button
-              type="button"
-              className="py-2 px-4 border border-gray-300 dark:border-gray-700 rounded-md text-sm leading-5 font-medium text-gray-700 dark:text-dark-med-emphasis hover:text-gray-500 dark:hover:text-dark-high-emphasis focus:outline-none focus:border-blue-300 focus:shadow-outline-blue transition"
-              onClick={onClose}
-            >
+            <button type="button" className="btn" onClick={onClose}>
               Cancel
             </button>
           </span>
@@ -185,11 +189,7 @@ export default function ContactUsSlideover({
             <button
               type="submit"
               disabled={!submitEnabled}
-              className={`inline-flex justify-center py-2 px-4 border border-transparent text-sm leading-5 font-medium rounded-md text-white transition ${
-                submitEnabled
-                  ? 'bg-blue-600 dark:bg-blue-900 hover:bg-blue-500 dar-hover:bg-blue-700 focus:outline-none focus:border-blue-700 focus:shadow-outline-blue active:bg-blue-700'
-                  : 'bg-blue-400 dark:bg-blue-800 focus:outline-none cursor-default'
-              }`}
+              className={`btn-primary`}
             >
               Contact Us
             </button>
@@ -214,7 +214,7 @@ export default function ContactUsSlideover({
                 href="https://forum.usaco.guide/"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-700 text-sm leading-5 font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:text-gray-500 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:text-gray-800 active:bg-gray-50 transition ease-in-out duration-150"
+                className="btn"
               >
                 Join Forum
               </a>
@@ -226,7 +226,7 @@ export default function ContactUsSlideover({
         {showSuccess && (
           <div className="rounded-md bg-green-50 dark:bg-green-800 p-4">
             <div className="flex">
-              <div className="flex-shrink-0">
+              <div className="flex-grow-0">
                 <svg
                   className="h-5 w-5 text-green-400"
                   viewBox="0 0 20 20"
@@ -245,8 +245,16 @@ export default function ContactUsSlideover({
                 </h3>
                 <div className="mt-2 text-sm leading-5 text-green-700 dark:text-dark-high-emphasis">
                   <p>
-                    We will try our best to respond (if one is needed) within a
-                    week.
+                    Your message has been submitted as an issue in our GitHub
+                    repository. You can track the issue here:{' '}
+                    <a
+                      href={issueLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="font-semibold hover:underline"
+                    >
+                      {issueLink}
+                    </a>
                   </p>
                   {/* <p className="pt-2">
                     For urgent requests, please feel free to email{' '}
@@ -266,7 +274,7 @@ export default function ContactUsSlideover({
         {!showSuccess && (
           <div className="space-y-6 pb-5">
             <Field
-              label="Name"
+              label="Name (will not be shown publicly)"
               id="contact_name"
               value={name}
               onChange={e => setName(e.target.value)}
@@ -275,7 +283,7 @@ export default function ContactUsSlideover({
               }
             />
             <Field
-              label="Email"
+              label="Email (will not be shown publicly)"
               id="contact_email"
               value={email}
               onChange={e => setEmail(e.target.value)}
@@ -290,7 +298,7 @@ export default function ContactUsSlideover({
               }
             />
             <Field
-              label="Module (If Applicable)"
+              label="Module (if applicable)"
               id="contact_module"
               value={location}
               onChange={e => setLocation(e.target.value)}
@@ -308,7 +316,7 @@ export default function ContactUsSlideover({
                           id={`contact_topic_${idx}`}
                           type="radio"
                           name="type"
-                          className="form-radio h-4 w-4 text-blue-600 transition dark:bg-gray-600"
+                          className="form-radio h-4 w-4 text-blue-600 dark:bg-gray-600 dark:focus:ring-offset-dark-surface"
                           checked={topic === t}
                           onChange={() => setTopic(t)}
                         />
@@ -324,6 +332,11 @@ export default function ContactUsSlideover({
                     </div>
                   </div>
                 ))}
+                {showErrors && topic === '' && (
+                  <p className="mt-2 text-sm text-red-600 dark:text-red-400">
+                    This field is required.
+                  </p>
+                )}
               </div>
             </fieldset>
             <div className="space-y-1">
@@ -331,16 +344,16 @@ export default function ContactUsSlideover({
                 htmlFor="contact_message"
                 className="block text-sm font-medium leading-5 text-gray-900 dark:text-dark-high-emphasis"
               >
-                Message
+                Message (markdown is supported)
               </label>
               <div className="relative rounded-md shadow-sm">
                 <textarea
                   id="contact_message"
                   rows={4}
                   className={
-                    'form-input block w-full sm:text-sm sm:leading-5 transition ease-in-out duration-150 dark:bg-gray-900 dark:border-gray-700 ' +
+                    'textarea ' +
                     (showErrors && message === ''
-                      ? 'border-red-300 text-red-900 placeholder-red-300 focus:border-red-300 focus:shadow-outline-red'
+                      ? 'border-red-300 dark:border-red-300 text-red-900 dark:text-red-300 placeholder-red-300 focus:border-red-300 dark:focus:border-red-300  focus:ring-red-300 dark:focus:ring-red-300'
                       : '')
                   }
                   value={message}

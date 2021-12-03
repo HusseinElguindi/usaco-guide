@@ -2,6 +2,7 @@
 id: time-comp
 title: 'Time Complexity'
 author: Darren Yao, Benjamin Qi
+contributors: Ryan Chou
 description: 'Measuring the number of operations an algorithm performs.'
 ---
 
@@ -137,8 +138,8 @@ while (i < n) {
 <PySection>
 
 ```py
-for i in range(1, n+1):
-	# constant time code here
+for i in range(1, n + 1):
+	pass # constant time code here
 ```
 
 ```py
@@ -158,7 +159,7 @@ are also $\mathcal{O}(n)$:
 <CPPSection>
 
 ```cpp
-for (int i = 1; i <= 5*n + 17; i++) {
+for (int i = 1; i <= 5 * n + 17; i++) {
 	// constant time code here
 }
 ```
@@ -173,7 +174,7 @@ for (int i = 1; i <= n + 457737; i++) {
 <JavaSection>
 
 ```java
-for (int i = 1; i <= 5*n + 17; i++) {
+for (int i = 1; i <= 5 * n + 17; i++) {
 	// constant time code here
 }
 ```
@@ -188,11 +189,11 @@ for (int i = 1; i <= n + 457737; i++) {
 <PySection>
 
 ```py
-for i in range(5*n + 17):
-	# constant time code here
+for i in range(5 * n + 17):
+	pass # constant time code here
 
 for i in range(n + 457737):
-	# constant time code here
+	pass # constant time code here
 ```
 
 </PySection>
@@ -230,7 +231,7 @@ for (int i = 1; i <= n; i++) {
 ```py
 for i in range(n):
 	for j in range(m):
-		# constant time code here
+		pass # constant time code here
 ```
 
 </PySection>
@@ -272,7 +273,7 @@ for (int i = 1; i <= n; i++) {
 ```py
 for i in range(n):
 	for j in range(i, n):
-		# constant time code here
+		pass # constant time code here
 ```
 
 </PySection>
@@ -316,10 +317,10 @@ for (int i = 1; i <= n + 58834; i++) {
 ```py
 for i in range(n):
 	for j in range(n):
-		# constant time code here
+		pass # constant time code here
 
 for i in range(n + 58834):
-	# more constant time code here
+	pass # more constant time code here
 ```
 
 </PySection>
@@ -363,10 +364,10 @@ for (int i = i; j <= m; i++) {
 ```py
 for i in range(n):
 	for j in range(n):
-		# constant time code here
+		pass # constant time code here
 
 for i in range(m):
-	# more constant time code here
+	pass # more constant time code here
 ```
 
 </PySection>
@@ -451,3 +452,81 @@ triplets.
 <!-- Bitsets are significantly faster (and so are bitwise operations vs iterating through bits). I don't want to make it sound insignificant -->
 
 For now, don't worry about optimizing constant factors -- just be aware of them.
+
+## Quiz
+<Quiz>
+  <Quiz.Question>
+    What's time complexity?
+    <Quiz.Answer>
+      Measuring the amount of memory an algorithm consumes.
+      <Quiz.Explanation>
+        This is known as space complexity.
+      </Quiz.Explanation>
+    </Quiz.Answer>
+    <Quiz.Answer correct>
+      Measuring the number of operations an algorithm performs.
+      <Quiz.Explanation>
+        Correct. You'd always want your algorithm to run as fast as possible!
+      </Quiz.Explanation>
+    </Quiz.Answer>
+    <Quiz.Answer>
+      The time it takes you to solve a problem.
+      <Quiz.Explanation>
+        
+      </Quiz.Explanation>
+    </Quiz.Answer>
+  </Quiz.Question>
+  <Quiz.Question>
+    What time complexity would addition take?
+    <Quiz.Answer correct>
+      $\mathcal{O}(1)$
+      <Quiz.Explanation>
+        Correct. No matter how big a certain number is, a mathematical formula would execute the same number of operations.
+      </Quiz.Explanation>
+    </Quiz.Answer>
+    <Quiz.Answer>
+      $\mathcal{O}(N)$
+      <Quiz.Explanation>
+        Would this algorithm take more steps because of a larger number?
+      </Quiz.Explanation>
+    </Quiz.Answer>
+    <Quiz.Answer>
+      $\mathcal{O}(N^2)$
+      <Quiz.Explanation>
+        
+      </Quiz.Explanation>
+    </Quiz.Answer>
+  </Quiz.Question>
+  <Quiz.Question>
+    What does Big O notation express?
+    <Quiz.Answer>
+      The best case scenario.
+    </Quiz.Answer>
+    <Quiz.Answer correct>
+      The worst case scenario.
+      <Quiz.Explanation>
+     	Correct.   
+      </Quiz.Explanation>
+    </Quiz.Answer>
+    <Quiz.Answer>
+      The average scenario.
+    </Quiz.Answer>
+  </Quiz.Question>
+  <Quiz.Question>
+    What's the time complexity of a for loop from 1 - N?
+    <Quiz.Answer correct>
+      $\mathcal{O}(N)$
+      <Quiz.Explanation>
+     	Correct.   
+      </Quiz.Explanation>
+    </Quiz.Answer>
+    
+    <Quiz.Answer>
+      $\mathcal{O}(1)$
+    </Quiz.Answer>
+    <Quiz.Answer>
+      $\mathcal{O}(N^2)$
+    </Quiz.Answer>
+  </Quiz.Question>
+  
+</Quiz>

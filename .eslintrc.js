@@ -3,12 +3,12 @@ module.exports = {
     browser: true,
     node: true,
     es6: true,
-    'jest/globals': true,
   },
   extends: [
     'eslint:recommended',
     'plugin:react/recommended',
     'plugin:@typescript-eslint/recommended',
+    'plugin:jest/recommended',
   ],
   parser: '@typescript-eslint/parser',
   parserOptions: {
@@ -22,7 +22,9 @@ module.exports = {
   rules: {
     'no-prototype-builtins': 'off',
     'react/no-unescaped-entities': 'off',
+    'no-useless-escape': 'warn',
     '@typescript-eslint/no-empty-function': 'off',
+    curly: ['error', 'multi-line'],
     // some of these are just too hard to fix at the moment :(
     'react/prop-types': 'off',
   },

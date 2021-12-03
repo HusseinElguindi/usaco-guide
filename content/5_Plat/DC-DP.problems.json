@@ -24,7 +24,7 @@
       "isStarred": false,
       "tags": ["D&C", "DP"],
       "solutionMetadata": {
-        "kind": "none"
+        "kind": "internal"
       }
     },
     {
@@ -38,6 +38,19 @@
       "solutionMetadata": {
         "kind": "link",
         "url": "https://github.com/mostafa-saad/MyCompetitiveProgramming/blob/master/Olympiad/COI/official/2015/final-exam2/solutions.pdf"
+      }
+    },
+    {
+      "uniqueId": "ac-YakinikuRestaurants",
+      "name": "Yakiniku Restaurants",
+      "url": "https://atcoder.jp/contests/arc067/tasks/arc067_d",
+      "source": "AC",
+      "difficulty": "Normal",
+      "isStarred": false,
+      "tags": ["D&C", "DP"],
+      "solutionMetadata": {
+        "kind": "autogen-label-from-site",
+        "site": "AC"
       }
     },
     {

@@ -10,7 +10,8 @@
       "isStarred": false,
       "tags": ["Greedy"],
       "solutionMetadata": {
-        "kind": "internal"
+        "kind": "in-module",
+        "moduleId": "intro-greedy"
       }
     }
   ],
@@ -36,8 +37,7 @@
       "isStarred": false,
       "tags": ["Greedy"],
       "solutionMetadata": {
-        "kind": "USACO",
-        "usacoId": "1084"
+        "kind": "internal"
       }
     },
     {
@@ -61,21 +61,7 @@
       "isStarred": true,
       "tags": ["Greedy"],
       "solutionMetadata": {
-        "kind": "USACO",
-        "usacoId": "989"
-      }
-    },
-    {
-      "uniqueId": "usaco-810",
-      "name": "Rest Stops",
-      "url": "http://www.usaco.org/index.php?page=viewproblem2&cpid=810",
-      "source": "Silver",
-      "difficulty": "Very Hard",
-      "isStarred": true,
-      "tags": ["Greedy"],
-      "solutionMetadata": {
-        "kind": "USACO",
-        "usacoId": "810"
+        "kind": "internal"
       }
     }
   ]

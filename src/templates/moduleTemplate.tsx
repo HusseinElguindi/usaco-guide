@@ -1,6 +1,6 @@
 import { graphql } from 'gatsby';
 import * as React from 'react';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { SECTION_LABELS } from '../../content/ordering';
 import Layout from '../components/layout';
@@ -12,14 +12,29 @@ import { MarkdownProblemListsProvider } from '../context/MarkdownProblemListsCon
 import UserDataContext from '../context/UserDataContext/UserDataContext';
 import { graphqlToModuleInfo } from '../utils/utils';
 
-export default function Template(props) {
-  const { mdx, moduleProblemLists } = props.data; // data.markdownRemark holds your post data
-  const { body } = mdx;
-  const module = React.useMemo(() => graphqlToModuleInfo(mdx), [mdx]);
-  const { setLastViewedModule } = useContext(UserDataContext);
+export default function Template(props): JSX.Element {
+  const { xdm, moduleProblemLists } = props.data; // data.markdownRemark holds your post data
+  const { body } = xdm;
+  const module = React.useMemo(() => graphqlToModuleInfo(xdm), [xdm]);
+  const { isLoaded, setLastViewedModule } = useContext(UserDataContext);
   React.useEffect(() => {
     setLastViewedModule(module.id);
   }, []);
+
+  useEffect(() => {
+    // source: https://miguelpiedrafita.com/snippets/scrollToHash
+    const { hash } = location;
+    if (!hash) return;
+    window.requestAnimationFrame(() => {
+      try {
+        const anchor = document.getElementById(hash.substring(1));
+        const offset = anchor.getBoundingClientRect().top + window.scrollY;
+        window.scroll({ top: offset, left: 0 });
+      } catch (e) {
+        console.error(e);
+      }
+    });
+  }, [isLoaded]);
 
   return (
     <Layout>
@@ -66,11 +81,12 @@ export default function Template(props) {
 
 export const pageQuery = graphql`
   query($id: String!) {
-    mdx(frontmatter: { id: { eq: $id } }) {
+    xdm(frontmatter: { id: { eq: $id } }) {
       body
       frontmatter {
         title
         author
+        contributors
         id
         prerequisites
         description

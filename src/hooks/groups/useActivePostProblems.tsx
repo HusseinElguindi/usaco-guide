@@ -1,12 +1,17 @@
+import type { CollectionReference } from 'firebase/firestore';
+import {
+  collection,
+  getFirestore,
+  onSnapshot,
+  query,
+  where,
+} from 'firebase/firestore';
 import * as React from 'react';
 import { ReactElement, ReactNode } from 'react';
-import { useNotificationSystem } from '../../context/NotificationSystemContext';
+import toast from 'react-hot-toast';
 import UserDataContext from '../../context/UserDataContext/UserDataContext';
-import {
-  groupProblemConverter,
-  GroupProblemData,
-} from '../../models/groups/problem';
-import useFirebase from '../useFirebase';
+import { GroupProblemData } from '../../models/groups/problem';
+import { useFirebaseApp } from '../useFirebase';
 import { useActiveGroup } from './useActiveGroup';
 
 const ActivePostProblemsContext = React.createContext<{
@@ -27,12 +32,10 @@ export function ActivePostProblemsProvider({
   const [isLoading, setIsLoading] = React.useState(true);
   const [problems, setProblems] = React.useState<GroupProblemData[]>();
 
-  const notifications = useNotificationSystem();
-
-  useFirebase(
-    firebase => {
-      setProblems(null);
+  useFirebaseApp(
+    firebaseApp => {
       setIsLoading(true);
+      setProblems(null);
       if (activePostId === null || !firebaseUser?.uid) {
         return;
       }
@@ -42,31 +45,26 @@ export function ActivePostProblemsProvider({
         );
       }
 
-      return firebase
-        .firestore()
-        .collection('groups')
-        .doc(activeGroup.activeGroupId)
-        .collection('posts')
-        .doc(activePostId)
-        .collection('problems')
-        .where('isDeleted', '==', false)
-        .withConverter(groupProblemConverter)
-        .onSnapshot(
-          snap => {
-            setProblems(
-              snap.docs
-                .map(doc => doc.data())
-                .sort((a, b) => {
-                  if (a.order === b.order) return a.name < b.name ? -1 : 1;
-                  return a.order < b.order ? -1 : 1;
-                })
-            );
-            setIsLoading(false);
-          },
-          error => {
-            notifications.showErrorNotification(error);
-          }
-        );
+      const q = query(
+        collection(
+          getFirestore(firebaseApp),
+          'groups',
+          activeGroup.activeGroupId,
+          'posts',
+          activePostId,
+          'problems'
+        ) as CollectionReference<GroupProblemData>,
+        where('isDeleted', '==', false)
+      );
+      onSnapshot(q, {
+        next: snap => {
+          setProblems(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+          setIsLoading(false);
+        },
+        error: error => {
+          toast.error(error.message);
+        },
+      });
     },
     [firebaseUser?.uid, activePostId, activeGroup.activeGroupId]
   );
@@ -85,7 +83,12 @@ export function ActivePostProblemsProvider({
   );
 }
 
-export function useActivePostProblems() {
+export function useActivePostProblems(): {
+  activePostId: string;
+  setActivePostId: (string) => void;
+  problems: GroupProblemData[];
+  isLoading: boolean;
+} {
   const context = React.useContext(ActivePostProblemsContext);
   if (context === null) {
     throw 'useActiveGroup must be used within a ActivePostProblemsProvider';

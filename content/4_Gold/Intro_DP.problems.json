@@ -1,5 +1,20 @@
 {
   "MODULE_ID": "intro-dp",
+  "focus": [
+    {
+      "uniqueId": "ac-frog1",
+      "name": "Frog 1",
+      "url": "https://atcoder.jp/contests/dp/tasks/dp_a",
+      "source": "AC",
+      "difficulty": "Easy",
+      "isStarred": false,
+      "tags": ["DP"],
+      "solutionMetadata": {
+        "kind": "autogen-label-from-site",
+        "site": "AC"
+      }
+    }
+  ],
   "usacoEasy": [
     {
       "uniqueId": "usaco-694",
@@ -22,7 +37,7 @@
       "isStarred": true,
       "tags": ["DP"],
       "solutionMetadata": {
-        "kind": "USACO",
+        "kind": "internal",
         "usacoId": "993"
       }
     },
@@ -35,7 +50,7 @@
       "isStarred": false,
       "tags": ["DP"],
       "solutionMetadata": {
-        "kind": "USACO",
+        "kind": "internal",
         "usacoId": "863"
       }
     },
@@ -53,16 +68,28 @@
       }
     },
     {
-      "uniqueId": "usaco-597",
-      "name": "Angry Cows",
-      "url": "http://www.usaco.org/index.php?page=viewproblem2&cpid=597",
-      "source": "Gold",
-      "difficulty": "Easy",
+      "uniqueId": "dmoj-phidias",
+      "name": "Phidias",
+      "url": "https://dmoj.ca/problem/ioi04p4",
+      "source": "DMOJ",
+      "difficulty": "Normal",
       "isStarred": false,
-      "tags": ["DP", "2P", "Binary Search"],
+      "tags": ["DP"],
       "solutionMetadata": {
-        "kind": "USACO",
-        "usacoId": "597"
+        "kind": "internal"
+      }
+    },
+    {
+      "uniqueId": "cf-1472G",
+      "name": "Moving to the Capital",
+      "url": "https://codeforces.com/contest/1472/problem/G",
+      "source": "CF",
+      "difficulty": "Hard",
+      "isStarred": false,
+      "tags": ["DP", "BFS"],
+      "solutionMetadata": {
+        "kind": "autogen-label-from-site",
+        "site": "CF"
       }
     }
   ],
@@ -100,10 +127,9 @@
       "source": "Gold",
       "difficulty": "Hard",
       "isStarred": false,
-      "tags": ["DP", "Prefix Sums", "Floyd-Warshall"],
+      "tags": ["DP", "Prefix Sums", "APSP"],
       "solutionMetadata": {
-        "kind": "USACO",
-        "usacoId": "971"
+        "kind": "internal"
       }
     },
     {

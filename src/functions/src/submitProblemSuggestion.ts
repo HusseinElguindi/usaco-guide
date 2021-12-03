@@ -10,12 +10,12 @@ import {
 } from '../../models/problem';
 
 const problemSuggestionReviewers = {
-  general: ['thecodingwizard'],
-  bronze: ['caoash'],
-  silver: ['andrewwangva'],
-  gold: ['caoash'],
-  plat: ['nchn27'],
-  adv: ['bqi343'],
+  general: [],
+  bronze: [],
+  silver: [],
+  gold: [],
+  plat: [],
+  adv: [],
 };
 
 if (admin.apps.length === 0) {
@@ -69,7 +69,10 @@ const submitProblemSuggestion = functions.https.onCall(
         'The filePath argument contained an unexpected value.'
       );
     }
-    const tagsArr = tags.split(/,\s*/g);
+    const tagsArr = tags
+      .split(',')
+      .map(tag => tag.trim())
+      .filter(tag => tag.length > 0);
     const generatedProblemId = generateProblemUniqueId(source, name, link);
     const suggestedProblem: ProblemMetadata = {
       uniqueId: generatedProblemId,
@@ -195,7 +198,7 @@ const submitProblemSuggestion = functions.https.onCall(
       )}`,
       {
         content: Buffer.from(formattedNewContent).toString('base64'),
-        message: "Feat: add suggested problem 'test'",
+        message: `Feat: add suggested problem '${name}'`,
         branch: branchName,
         sha: oldFileHash,
       }

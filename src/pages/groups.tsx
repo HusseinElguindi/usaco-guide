@@ -1,3 +1,14 @@
+// import * as React from 'react';
+
+// export default function Placeholder() {
+//   return (
+//     <div data-testid="build-placeholder">
+//       This placeholder greatly speeds up build times. Uncomment this code and
+//       comment out everything below it. Make sure to undo before pushing.
+//     </div>
+//   );
+// }
+
 import { Router } from '@reach/router';
 import { Link } from 'gatsby';
 import React, { ReactElement } from 'react';
@@ -6,7 +17,7 @@ import EditPostPage from '../components/Groups/EditPostPage/EditPostPage';
 import EditProblemPage from '../components/Groups/EditProblemPage/EditProblemPage';
 import GroupLeaderboardPage from '../components/Groups/GroupLeaderboardPage/GroupLeaderboardPage';
 import GroupPage from '../components/Groups/GroupPage/GroupPage';
-import GroupSelectPage from '../components/Groups/GroupSelectPage';
+import GroupSelectPage from '../components/Groups/GroupSelectPage/GroupSelectPage';
 import JoinGroupPage from '../components/Groups/JoinGroupPage';
 import JoinLinksPage from '../components/Groups/JoinLinksPage/JoinLinksPage';
 import MembersPage from '../components/Groups/MembersPage/MembersPage';
@@ -16,6 +27,7 @@ import ProblemPage from '../components/Groups/ProblemPage/ProblemPage';
 import { ProblemSubmissionPopupProvider } from '../components/Groups/ProblemSubmissionPopup';
 import Layout from '../components/layout';
 import TopNavigationBar from '../components/TopNavigationBar/TopNavigationBar';
+import { SignInContext } from '../context/SignInContext';
 import UserDataContext from '../context/UserDataContext/UserDataContext';
 import {
   ActiveGroupProvider,
@@ -34,8 +46,14 @@ const NotFoundPageWrapper = (props: any): ReactElement => {
 
 const GroupPageWrapper = (props: any): ReactElement => {
   const { Component, ...propsExceptComponent } = props;
-  const { setActiveGroupId, isLoading, groupData } = useActiveGroup();
-  const { firebaseUser, isLoaded, signIn } = React.useContext(UserDataContext);
+  const {
+    activeGroupId,
+    setActiveGroupId,
+    isLoading,
+    groupData,
+  } = useActiveGroup();
+  const { firebaseUser, isLoaded } = React.useContext(UserDataContext);
+  const { signIn } = React.useContext(SignInContext);
 
   React.useEffect(() => {
     setActiveGroupId(props.groupId);
@@ -59,7 +77,11 @@ const GroupPageWrapper = (props: any): ReactElement => {
       </Layout>
     );
   }
-  if (isLoading || (groupData && groupData.id !== props.groupId)) {
+  if (
+    isLoading ||
+    activeGroupId !== props.groupId ||
+    (groupData && groupData.id !== props.groupId)
+  ) {
     return (
       <Layout>
         <TopNavigationBar />
@@ -112,7 +134,7 @@ const PostPageWrapper = (props: any): ReactElement => {
   );
 };
 
-export default function GroupsRouter() {
+export default function GroupsRouter(): JSX.Element {
   return (
     <ActiveGroupProvider>
       <ActivePostProblemsProvider>

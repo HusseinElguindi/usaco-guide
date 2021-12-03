@@ -1,6 +1,8 @@
+import { globalHistory } from '@reach/router';
 import * as React from 'react';
 import { useContext } from 'react';
 import 'tippy.js/themes/light.css';
+import { EditorContext } from '../../../context/EditorContext';
 import { useMarkdownProblemLists } from '../../../context/MarkdownProblemListsContext';
 import UserDataContext from '../../../context/UserDataContext/UserDataContext';
 import { ProblemInfo } from '../../../models/problem';
@@ -17,6 +19,7 @@ type ProblemsListProps =
       title?: string;
       children?: React.ReactChildren;
       problems?: string;
+      hideSuggestProblemButton?: boolean;
     }
   | {
       title?: string;
@@ -32,6 +35,7 @@ type AnnotatedProblemsListProps =
       title?: string;
       children?: React.ReactChildren;
       problems?: ProblemInfo[];
+      hideSuggestProblemButton?: boolean;
     }
   | {
       isDivisionTable: true;
@@ -41,17 +45,18 @@ type AnnotatedProblemsListProps =
       division?: string; // only if is division table
       modules?: boolean; // only if is division table
     };
-export function ProblemsList(unannotatedProps: ProblemsListProps) {
+export function ProblemsList(unannotatedProps: ProblemsListProps): JSX.Element {
   const markdownProblems = useMarkdownProblemLists();
   let problems: ProblemInfo[] | DivisionProblemInfo[];
   if (typeof unannotatedProps.problems === 'string') {
     problems = markdownProblems.find(
       list => list.listId === unannotatedProps.problems
     )?.problems;
-    if (!problems)
+    if (!problems) {
       throw new Error(
         "Couldn't find the problem list with name " + unannotatedProps.problems
       );
+    }
   } else {
     problems = unannotatedProps.problems as DivisionProblemInfo[];
   }
@@ -64,7 +69,8 @@ export function ProblemsList(unannotatedProps: ProblemsListProps) {
     problems,
   } as AnnotatedProblemsListProps;
   const userSettings = useContext(UserDataContext);
-  const showTagsAndDifficulty = !userSettings.hideTagsAndDifficulty;
+  const showTags = !userSettings.hideTags;
+  const showDifficulty = !userSettings.hideDifficulty;
 
   const [problem, setProblem] = React.useState(null);
   const [showModal, setShowModal] = React.useState(false);
@@ -73,10 +79,17 @@ export function ProblemsList(unannotatedProps: ProblemsListProps) {
     props.isDivisionTable &&
     props.problems.every(problem => !!problem.percentageSolved);
 
+  const { inEditor } = useContext(EditorContext);
+  const path = globalHistory.location.pathname || "";
+
   return (
     <div
       className="-mx-4 sm:-mx-6 lg:mx-0"
-      id={`problemlist-${props.isDivisionTable === false ? props.tableName : ("division-" + props.division)}`}
+      id={`problemlist-${
+        props.isDivisionTable === false
+          ? props.tableName
+          : 'division-' + props.division
+      }`}
     >
       <div className="flex flex-col">
         <div className="-my-2 py-2 overflow-x-auto lg:-mx-4 lg:px-4">
@@ -84,7 +97,8 @@ export function ProblemsList(unannotatedProps: ProblemsListProps) {
             <table className="w-full no-markdown text-gray-500 dark:text-dark-med-emphasis">
               <thead>
                 <ProblemsListHeader
-                  showTagsAndDifficulty={showTagsAndDifficulty}
+                  showTags={showTags}
+                  showDifficulty={showDifficulty}
                   isDivisionTable={props.isDivisionTable}
                   showSolvePercentage={shouldShowSolvePercentage}
                   showPlatinumSolvePercentageMessage={
@@ -101,7 +115,8 @@ export function ProblemsList(unannotatedProps: ProblemsListProps) {
                       <ProblemsListItem
                         key={problem.uniqueId}
                         problem={problem}
-                        showTagsAndDifficulty={showTagsAndDifficulty}
+                        showTags={showTags}
+                        showDifficulty={showDifficulty}
                         onShowSolutionSketch={problem => {
                           setProblem(problem);
                           setShowModal(true);
@@ -118,7 +133,8 @@ export function ProblemsList(unannotatedProps: ProblemsListProps) {
                       <ProblemsListItem
                         key={problem.uniqueId}
                         problem={problem}
-                        showTagsAndDifficulty={showTagsAndDifficulty}
+                        showTags={showTags}
+                        showDifficulty={showDifficulty}
                         onShowSolutionSketch={problem => {
                           setProblem(problem);
                           setShowModal(true);
@@ -127,7 +143,10 @@ export function ProblemsList(unannotatedProps: ProblemsListProps) {
                         showPercent={shouldShowSolvePercentage}
                       />
                     ))}
-                    <SuggestProblemRow listName={props.tableName} />
+                    {!props.hideSuggestProblemButton &&
+                      path.includes('conclusion') && (
+                        <SuggestProblemRow listName={props.tableName} />
+                      )}
                   </>
                 )}
               </tbody>

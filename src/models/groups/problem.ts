@@ -1,4 +1,4 @@
-import { default as firebase, default as firebaseType } from 'firebase';
+import { Timestamp } from 'firebase/firestore';
 
 export interface ProblemData {
   id: string;
@@ -12,10 +12,6 @@ export interface ProblemData {
   solution: string | null;
   submissionType: SubmissionType;
   isDeleted: boolean;
-  /**
-   * Lower = appears first in problem list. Ties broken by name.
-   */
-  order: number;
 }
 export type GroupProblemData = ProblemData &
   (
@@ -26,7 +22,7 @@ export type GroupProblemData = ProblemData &
     | {
         usacoGuideId: string;
         solutionReleaseMode: 'custom';
-        solutionReleaseTimestamp: firebaseType.firestore.Timestamp;
+        solutionReleaseTimestamp: Timestamp;
       }
   );
 
@@ -51,7 +47,7 @@ export type ProblemHint = {
 
 export enum SubmissionType {
   SELF_GRADED = 'Self Graded',
-  COMPCS_API = 'CompCS API',
+  ONLINE_JUDGE = 'Online Judge',
 }
 
 export type Submission = {
@@ -60,17 +56,30 @@ export type Submission = {
   userId: string;
   code: string;
   language: 'cpp' | 'java' | 'py';
-  timestamp: firebase.firestore.Timestamp;
+  timestamp: Timestamp;
+  result: number;
+  status: ExecutionStatus;
 } & (
   | {
       type: SubmissionType.SELF_GRADED;
-      result: number;
-      status: ExecutionStatus;
     }
-  | {
-      type: SubmissionType.COMPCS_API;
-      result: TestCaseResult[];
-    }
+  | ({
+      type: SubmissionType.ONLINE_JUDGE;
+      errorMessage?: string;
+      judgeProblemId: string;
+      gradingStatus: 'waiting' | 'in_progress' | 'done' | 'error';
+    } & (
+      | {
+          compilationError: false;
+          testCases?: TestCaseResult[];
+        }
+      | {
+          compilationError: true;
+          compilationErrorMessage: string;
+        }
+      // NOTE: while gradingStatus is waiting compilationError is undefined, not false or true
+      // but I can't get the typescript working >:-(
+    ))
 );
 
 export enum ExecutionStatus {
@@ -79,49 +88,56 @@ export enum ExecutionStatus {
   TLE = 'TLE',
   MLE = 'MLE',
   RTE = 'RTE',
+  CE = 'CE',
+  INTERNAL_ERROR = 'INTERNAL_ERROR',
   PENDING = 'Pending',
 }
 
-export type TestCaseResult = {
-  status: ExecutionStatus;
-  /**
-   * Execution time in milliseconds
-   */
-  executionTime: number;
-};
+export enum TestResultError {
+  COMPILE_TIMEOUT = 'compile_timeout',
+  COMPILE_ERROR = 'compile_error',
+  RUNTIME_ERROR = 'runtime_error',
+  TIME_LIMIT_EXCEEDED = 'time_limit_exceeded',
+  EMPTY_MISSING_OUTPUT = 'empty_missing_output',
+  WRONG_ANSWER = 'wrong_answer',
+  INTERNAL_ERROR = 'internal_error',
+}
+export type TestCaseResult = { caseId: number } & (
+  | {
+      pass: false;
+      error: TestResultError;
+    }
+  | {
+      pass: true;
 
-export const groupProblemConverter = {
-  toFirestore(problem: GroupProblemData): firebaseType.firestore.DocumentData {
-    const { id, ...data } = problem;
-    return data;
-  },
+      // in milliseconds:
+      time: number;
+      wallTime: number;
 
-  fromFirestore(
-    snapshot: firebaseType.firestore.QueryDocumentSnapshot,
-    options: firebaseType.firestore.SnapshotOptions
-  ): GroupProblemData {
-    return {
-      ...snapshot.data(options),
-      id: snapshot.id,
-    } as GroupProblemData;
-  },
-};
+      // in kb?
+      memory: number;
+    }
+);
 
-export const submissionConverter = {
-  toFirestore(submission: Submission): firebaseType.firestore.DocumentData {
-    const { id, ...data } = submission;
-    return data;
-  },
-
-  fromFirestore(
-    snapshot: firebaseType.firestore.QueryDocumentSnapshot,
-    options: firebaseType.firestore.SnapshotOptions
-  ): Submission {
-    return {
-      ...snapshot.data(options),
-      id: snapshot.id,
-    } as Submission;
-  },
+export const getTestCaseSymbol = (testCase: TestCaseResult): string => {
+  if (testCase.pass === true) {
+    return '*';
+  }
+  switch (testCase.error) {
+    case TestResultError.COMPILE_TIMEOUT:
+    case TestResultError.COMPILE_ERROR:
+      return 'c';
+    case TestResultError.RUNTIME_ERROR:
+      return '!';
+    case TestResultError.TIME_LIMIT_EXCEEDED:
+      return 't';
+    case TestResultError.EMPTY_MISSING_OUTPUT:
+      return 'e';
+    case TestResultError.WRONG_ANSWER:
+      return 'x';
+    case TestResultError.INTERNAL_ERROR:
+      return '?';
+  }
 };
 
 export const submissionTextColor: { [key in ExecutionStatus]: string } = {
@@ -130,6 +146,8 @@ export const submissionTextColor: { [key in ExecutionStatus]: string } = {
   TLE: 'text-red-800 dark:text-red-200',
   MLE: 'text-red-800 dark:text-red-200',
   RTE: 'text-red-800 dark:text-red-200',
+  CE: 'text-red-800 dark:text-red-200',
+  INTERNAL_ERROR: 'text-red-800 dark:text-red-200',
   Pending: 'text-gray-800 dark:text-gray-200',
 };
 
@@ -139,6 +157,8 @@ export const submissionCircleColor: { [key in ExecutionStatus]: string } = {
   TLE: 'bg-red-400 dark:bg-red-500',
   MLE: 'bg-red-400 dark:bg-red-500',
   RTE: 'bg-red-400 dark:bg-red-500',
+  CE: 'bg-red-400 dark:bg-red-500',
+  INTERNAL_ERROR: 'bg-red-400 dark:bg-red-500',
   Pending: 'bg-gray-400 dark:bg-gray-500',
 };
 
@@ -150,27 +170,21 @@ export const submissionCircleBorderColor: {
   TLE: 'bg-red-100 dark:bg-red-800',
   MLE: 'bg-red-100 dark:bg-red-800',
   RTE: 'bg-red-100 dark:bg-red-800',
+  CE: 'bg-red-100 dark:bg-red-800',
+  INTERNAL_ERROR: 'bg-red-100 dark:bg-red-800',
   Pending: 'bg-gray-100 dark:bg-gray-800',
 };
 
 export const getSubmissionTimestampString = (submission: Submission) =>
   submission?.timestamp?.toDate().toString().substr(0, 24);
 export const getSubmissionStatus = (submission: Submission) => {
-  if (submission.type === SubmissionType.SELF_GRADED) {
-    return submission.status;
-  }
-  // todo actually implement
-  return ExecutionStatus.AC;
+  return submission.status;
 };
 export const getSubmissionEarnedPoints = (
   submission: Submission,
   problem: ProblemData
 ) => {
-  if (submission.type === SubmissionType.SELF_GRADED) {
-    return parseFloat((submission.result * problem.points).toFixed(1));
-  }
-  // todo actually implement
-  return problem.points;
+  return parseFloat((submission.result * problem.points).toFixed(1));
 };
 export const getEarnedPointsForProblem = (
   problem: ProblemData,

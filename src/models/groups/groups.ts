@@ -1,5 +1,4 @@
-import firebaseType from 'firebase';
-import { Leaderboard } from './leaderboard';
+import { Timestamp } from 'firebase/firestore';
 
 export type GroupData = {
   id: string;
@@ -8,7 +7,7 @@ export type GroupData = {
   ownerIds: string[];
   adminIds: string[];
   memberIds: string[];
-  leaderboard: Leaderboard;
+  postOrdering: string[];
 };
 
 export enum GroupPermission {
@@ -23,53 +22,15 @@ export type JoinGroupLink = {
   revoked: boolean;
   numUses: number;
   maxUses: number | null;
-  expirationTime: firebaseType.firestore.Timestamp | null;
+  expirationTime: Timestamp | null;
   usedBy: string[];
   author: string;
 };
 
-export const groupConverter = {
-  toFirestore(
-    group: Omit<GroupData, 'id'>
-  ): firebaseType.firestore.DocumentData {
-    return {
-      name: group.name,
-      description: group.description,
-      ownerIds: group.ownerIds,
-      adminIds: group.ownerIds,
-      memberIds: group.ownerIds,
-    };
-  },
-
-  fromFirestore(
-    snapshot: firebaseType.firestore.QueryDocumentSnapshot,
-    options: firebaseType.firestore.SnapshotOptions
-  ): GroupData {
-    return {
-      ...snapshot.data(options),
-      id: snapshot.id,
-    } as GroupData;
-  },
-};
-
-export const joinGroupLinkConverter = {
-  toFirestore(link: JoinGroupLink): firebaseType.firestore.DocumentData {
-    const { id, ...data } = link;
-    return data;
-  },
-
-  fromFirestore(
-    snapshot: firebaseType.firestore.QueryDocumentSnapshot,
-    options: firebaseType.firestore.SnapshotOptions
-  ): JoinGroupLink {
-    return {
-      ...snapshot.data(options),
-      id: snapshot.id,
-    } as JoinGroupLink;
-  },
-};
-
-export const isUserAdminOfGroup = (group: GroupData, userId: string) => {
+export const isUserAdminOfGroup = (
+  group: GroupData,
+  userId: string
+): boolean => {
   return (
     !!group?.adminIds.includes(userId) || !!group?.ownerIds.includes(userId)
   );

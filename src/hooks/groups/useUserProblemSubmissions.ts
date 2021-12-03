@@ -1,41 +1,59 @@
+import type { CollectionReference } from 'firebase/firestore';
+import {
+  collection,
+  getFirestore,
+  onSnapshot,
+  query,
+  where,
+} from 'firebase/firestore';
 import * as React from 'react';
-import UserDataContext from '../../context/UserDataContext/UserDataContext';
-import { Submission, submissionConverter } from '../../models/groups/problem';
-import useFirebase from '../useFirebase';
+import toast from 'react-hot-toast';
+import { Submission } from '../../models/groups/problem';
+import { useFirebaseApp } from '../useFirebase';
 import { useActiveGroup } from './useActiveGroup';
 
 export default function useUserProblemSubmissions(
   postId: string,
   problemId: string
 ) {
-  const { firebaseUser } = React.useContext(UserDataContext);
   const [submissions, setSubmissions] = React.useState<Submission[]>(null);
   const activeGroup = useActiveGroup();
 
-  useFirebase(
-    firebase => {
-      if (problemId && firebaseUser?.uid && activeGroup?.activeGroupId) {
-        return firebase
-          .firestore()
-          .collection('groups')
-          .doc(activeGroup.activeGroupId)
-          .collection('posts')
-          .doc(postId)
-          .collection('problems')
-          .doc(problemId)
-          .collection('submissions')
-          .where('userId', '==', firebaseUser.uid)
-          .withConverter(submissionConverter)
-          .onSnapshot(snap => {
-            setSubmissions(
-              snap.docs
-                .map(doc => doc.data())
-                .sort((a, b) => b.timestamp.toMillis() - a.timestamp.toMillis())
-            );
-          });
+  useFirebaseApp(
+    firebaseApp => {
+      if (problemId && activeGroup.activeUserId && activeGroup?.activeGroupId) {
+        return onSnapshot(
+          query(
+            collection(
+              getFirestore(firebaseApp),
+              'groups',
+              activeGroup.activeGroupId,
+              'posts',
+              postId,
+              'problems',
+              problemId,
+              'submissions'
+            ) as CollectionReference<Submission>,
+            where('userId', '==', activeGroup.activeUserId)
+          ),
+          {
+            next: snap => {
+              setSubmissions(
+                snap.docs
+                  .map(doc => ({ id: doc.id, ...doc.data() }))
+                  .sort(
+                    (a, b) => b.timestamp?.toMillis() - a.timestamp?.toMillis()
+                  )
+              );
+            },
+            error: error => {
+              toast.error(error.message);
+            },
+          }
+        );
       }
     },
-    [firebaseUser?.uid, postId, problemId, activeGroup?.activeGroupId]
+    [activeGroup.activeUserId, postId, problemId, activeGroup?.activeGroupId]
   );
 
   return submissions;

@@ -1,6 +1,34 @@
 {
   "MODULE_ID": "treaps",
-  "treeRot": [
+  "maintain": [
+    {
+      "uniqueId": "noi-05-MaintainingASequence",
+      "name": "Maintaining a Sequence",
+      "url": "https://dmoj.ca/problem/noi05p2",
+      "source": "China NOI 2005",
+      "difficulty": "Normal",
+      "isStarred": false,
+      "tags": [""],
+      "solutionMetadata": {
+        "kind": "none"
+      }
+    }
+  ],
+  "sam2": [
+    {
+      "uniqueId": "cses-2072",
+      "name": "Cut and Paste",
+      "url": "https://cses.fi/problemset/task/2072",
+      "source": "CSES",
+      "difficulty": "Easy",
+      "isStarred": false,
+      "tags": [],
+      "solutionMetadata": {
+        "kind": "none"
+      }
+    }
+  ],
+  "impl": [
     {
       "uniqueId": "poi-11-TreeRotations2",
       "name": "2011 - Tree Rotations 2",
@@ -10,8 +38,8 @@
       "isStarred": false,
       "tags": [],
       "solutionMetadata": {
-        "kind": "none"
+        "kind": "internal"
       }
     }
-  ]
+    ]
 }

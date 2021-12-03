@@ -1,7 +1,7 @@
+import dayjs from 'dayjs';
 import { Link, navigate } from 'gatsby';
-import moment from 'moment';
-import * as React from 'react';
-import { useNotificationSystem } from '../../../context/NotificationSystemContext';
+import React from 'react';
+import toast from 'react-hot-toast';
 import { useActiveGroup } from '../../../hooks/groups/useActiveGroup';
 import { usePost } from '../../../hooks/groups/usePost';
 import { usePostActions } from '../../../hooks/groups/usePostActions';
@@ -26,7 +26,6 @@ export default function ProblemPage(props) {
   const post = usePost(postId);
   const problem = useProblem(problemId);
   const { deleteProblem } = usePostActions(activeGroup.groupData?.id);
-  const notifications = useNotificationSystem();
 
   if (!problem || post.type !== 'assignment' || activeGroup.isLoading) {
     return null;
@@ -78,7 +77,7 @@ export default function ProblemPage(props) {
                                 }
                               );
                             })
-                            .catch(e => notifications.showErrorNotification(e));
+                            .catch(e => toast.error(e.message));
                         }
                       }}
                       className="btn"
@@ -174,13 +173,13 @@ export default function ProblemPage(props) {
                           problem.solutionReleaseMode == 'custom') && (
                           <p className="text-gray-600 dark:text-gray-400 italic">
                             The problem solution will be released on{' '}
-                            {moment(
+                            {dayjs(
                               (problem.solutionReleaseMode == 'due-date'
                                 ? post.dueTimestamp
                                 : problem.solutionReleaseMode == 'custom' &&
                                   problem.solutionReleaseTimestamp
                               ).toDate()
-                            ).format('MMMM Do h:mma')}
+                            ).format('MMMM DD h:mma')}
                             .
                           </p>
                         )

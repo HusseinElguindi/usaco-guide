@@ -9,6 +9,7 @@ export type Author = {
   github?: string;
   website?: string;
   codeforces?: string;
+  youtube?: string;
 };
 
 export const Authors: Author[] = [
@@ -17,19 +18,12 @@ export const Authors: Author[] = [
     name: 'Nathan Wang',
     title: 'Coordinator & Webmaster',
     blurb:
-      'Nathan Wang is a two-time USACO Finalist and web development enthusiast.',
+      'Nathan Wang is a three-time USACO Finalist and web development enthusiast.',
     website: 'https://thecodingwizard.me/',
     codeforces: 'thecodingwizard',
     email: 'nathan.r.wang@gmail.com',
     github: 'thecodingwizard',
   },
-  // {
-  //   photo: 'briancdean',
-  //   name: 'Brian C. Dean',
-  //   title: 'Content Director',
-  //   blurb: 'Brian Christopher Dean is the director of USACO.',
-  //   email: 'bcdean@clemson.edu',
-  // },
   {
     photo: 'benq',
     name: 'Benjamin Qi',
@@ -41,48 +35,64 @@ export const Authors: Author[] = [
     github: 'bqi343',
   },
   {
+    photo: "maggie",
+    name: "Maggie Liu",
+    title: "Executive",
+    blurb: "Maggie Liu is a USACO competitor who enjoys problem solving and teaching others programming and math.",
+    github: "maggie-j-liu",
+    codeforces: "ml1234",
+    email: "maggie.j.liu@gmail.com",
+    website: "https://maggieliu.dev",
+  },
+  {
+    photo: "melody",
+    name: "Melody Yu",
+    title: "Executive",
+    blurb: "Melody Yu is a USACO Platinum competitor and founder of Project Starcoder.",
+    github: "cskitty",
+    website: "https://melodyyu.com",
+    email: "ocmelodyyu@gmail.com",
+    youtube: "https://www.youtube.com/channel/UCPkhk5gFov8vIPXj0zHyxEQ",
+  },
+  // {
+  //   photo: 'briancdean',
+  //   name: 'Brian C. Dean',
+  //   title: 'Content Director',
+  //   blurb: 'Brian Christopher Dean is the director of USACO.',
+  //   email: 'bcdean@clemson.edu',
+  // },
+  {
     photo: 'michael',
     name: 'Michael Cao',
-    title: 'Content Manager',
+    title: 'Core Team',
     blurb:
       'Michael Cao is a USACO Platinum competitor and USACO problemsetter.',
-    codeforces: 'caohash',
-    email: 'cao.michael14@gmail.com',
+    codeforces: 'caoash',
+    email: 'caoash@gmail.com',
     github: 'caoash',
   },
   {
     photo: 'darren',
     name: 'Darren Yao',
-    title: 'Content Manager',
+    title: 'Core Team',
     blurb:
       'Darren Yao is a USACO Platinum competitor and author of the textbook "An Introduction to USACO."',
     website: 'http://darrenyao.com/',
     email: 'darren.yao@gmail.com',
-    codeforces: 'darren_yao',
     github: 'darren-yao',
-  },
-  {
-    photo: 'nathanc',
-    name: 'Nathan Chen',
-    title: 'Content Manager',
-    blurb:
-      'Nathan Chen is a two-time USACO Finalist who competes in both Java and C++ fluently.',
-    codeforces: 'nchn27',
-    github: 'nchn27',
-    email: 'nchn27@gmail.com',
   },
   {
     photo: 'siyong1',
     name: 'Siyong Huang',
-    title: 'Content Manager',
-    blurb: 'Siyong Huang is a two-time USACO Finalist.',
+    title: 'Core Team',
+    blurb: 'Siyong Huang is an IOI gold medalist and three-time USACO Finalist.',
     codeforces: 'frodakcin',
     github: 'frodakcin',
   },
   {
     photo: 'andi',
     name: 'Andi Qu',
-    title: 'Content Manager',
+    title: 'Core Team',
     blurb: 'Andi Qu is an IOI and IMO bronze medalist.',
     codeforces: 'dolphingarlic',
     github: 'dolphingarlic',
@@ -92,11 +102,50 @@ export const Authors: Author[] = [
   {
     photo: 'Andrew',
     name: 'Andrew Wang',
-    title: 'Content Manager',
+    title: 'Core Team',
     blurb:
-      'Andrew Wang is a USACO competitor who competes in multiple languages fluently.',
+      'Andrew Wang is a USACO Platinum competitor and a researcher in the field of bioinformatics.',
     codeforces: 'a.wang',
     github: 'andrewwangva',
-    email: 'andrewwangva@gmail.com',
+    email: 'andrewwangva.biz@gmail.com',
+  },
+  {
+    photo: "Dong",
+    name: "Bing-Dong Liu",
+    title: "Content Manager",
+    blurb: "Bing-Dong Liu is a USACO Platinum competitor who creates video editorials for USACO Training problems.",
+    codeforces: "lunchbox",
+    github: "dongliu0426",
+    email: "dongliu0426@gmail.com",
+    youtube: "https://www.youtube.com/channel/UC6je-w-ygZqxRsG76HtMceQ",
+  },
+  {
+    photo: "Harry",
+    name: "Qi Wang",
+    title: "Content Manager",
+    blurb: "Qi Wang is a competitive programmer that participates in USACO with multiple languages. He is also a regular website developer.",
+    github: "HarryWangATX",
+    website: "https://harrycodes.com/",
+    email: "harrynicomama@gmail.com",
+    youtube: "https://www.youtube.com/c/RandomCoder",
+  },
+  {
+    photo: 'neo',
+    name: "Neo Wang",
+    title: "Content Manager",
+    blurb: "Neo Wang is a competitive programmer who also writes contests, creates websites, and competes in robotics.",
+    github: "nwatx",
+    website: "https://nwatx.me",
+    email: "neowangatx@gmail.com",
+  },
+  {
+    photo: 'nathanc',
+    name: 'Nathan Chen',
+    title: 'Former Core Team',
+    blurb:
+      'Nathan Chen is a two-time USACO Finalist who competes in both Java and C++ fluently.',
+    codeforces: 'nchn27',
+    github: 'nchn27',
+    email: 'nchn27@gmail.com',
   },
 ];

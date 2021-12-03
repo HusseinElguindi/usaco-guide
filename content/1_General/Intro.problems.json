@@ -1,10 +1,10 @@
 {
-  "MODULE_ID": "intro",
+  "MODULE_ID": "intro-cp",
   "general": [
     {
       "uniqueId": "kattis-BasketballOneOnOne",
       "name": "Basketball One on One",
-      "url": "https://open.kattis.com/contests/mcpc19open/problems/basketballoneonone",
+      "url": "https://open.kattis.com/problems/basketballoneonone",
       "source": "Kattis",
       "difficulty": "Very Easy",
       "isStarred": false,

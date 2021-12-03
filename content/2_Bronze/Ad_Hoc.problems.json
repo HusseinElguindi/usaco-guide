@@ -10,8 +10,7 @@
       "isStarred": false,
       "tags": [],
       "solutionMetadata": {
-        "kind": "USACO",
-        "usacoId": "915"
+        "kind": "internal"
       }
     },
     {
@@ -23,8 +22,19 @@
       "isStarred": false,
       "tags": [],
       "solutionMetadata": {
-        "kind": "USACO",
-        "usacoId": "892"
+        "kind": "internal"
+      }
+    },
+    {
+      "uniqueId": "usaco-832",
+      "name": "Milking Order",
+      "url": "http://www.usaco.org/index.php?page=viewproblem2&cpid=832",
+      "source": "Bronze",
+      "difficulty": "Hard",
+      "isStarred": false,
+      "tags": [],
+      "solutionMetadata": {
+        "kind": "internal"
       }
     },
     {
@@ -36,8 +46,7 @@
       "isStarred": false,
       "tags": [],
       "solutionMetadata": {
-        "kind": "USACO",
-        "usacoId": "809"
+        "kind": "internal"
       }
     },
     {
@@ -62,8 +71,7 @@
       "isStarred": false,
       "tags": [],
       "solutionMetadata": {
-        "kind": "USACO",
-        "usacoId": "808"
+        "kind": "internal"
       }
     },
     {
@@ -75,8 +83,7 @@
       "isStarred": false,
       "tags": ["Greedy"],
       "solutionMetadata": {
-        "kind": "USACO",
-        "usacoId": "1088"
+        "kind": "internal"
       }
     }
   ]

@@ -2,6 +2,7 @@ import axios from 'axios';
 import * as crypto from 'crypto';
 import * as functions from 'firebase-functions';
 const MAILCHIMP_API_KEY = functions.config().mailchimp.apikey;
+import "firebase-functions/lib/logger/compat";
 
 export default async function updateMailingList({
   email,
@@ -11,6 +12,7 @@ export default async function updateMailingList({
   ip,
   level,
   fullFinancialAid,
+  joinLink,
 }: {
   email: string;
   firstName: string;
@@ -19,8 +21,10 @@ export default async function updateMailingList({
   ip: string;
   level: string;
   fullFinancialAid: boolean;
+  joinLink: string;
 }) {
   try {
+    functions.logger.warn("Updating Mailing List")
     const listID = 'e122c7f3eb';
     const emailHash = crypto
       .createHash('md5')
@@ -40,14 +44,17 @@ export default async function updateMailingList({
         return resp.data;
       })
       .catch(e => {
-        console.log('Mailchimp Existing Fields GET Error');
+        functions.logger.warn('No Mailchimp Existing Fields Found (or an error occurred)');
         // the user probably doesn't exist
         // so just assume there is no previous data
-        if (e.status !== 404) {
-          console.log(e?.toJSON());
+        if (e.response?.status !== 404) {
+          functions.logger.warn(e?.toJSON());
         }
+
+        // return empty object
         return Promise.resolve({});
       });
+    functions.logger.warn("done getting existing fields")
     const data = {
       email_address: email,
       status: 'subscribed',
@@ -57,10 +64,16 @@ export default async function updateMailingList({
         ...(existingFields?.merge_fields || {}),
         FNAME: firstName,
         LNAME: lastName,
-        PROGLANG: preferredLanguage === 'java' ? 'Java' : 'C++',
+        PROGLANG:
+          preferredLanguage === 'java'
+            ? 'Java'
+            : preferredLanguage === 'cpp'
+            ? 'C++'
+            : 'Python',
+        BRVCJOINLK: joinLink,
       },
     };
-
+    functions.logger.warn("data", data)
     await axios.put(
       `https://us2.api.mailchimp.com/3.0/lists/${listID}/members/${emailHash}`,
       data,
@@ -71,21 +84,19 @@ export default async function updateMailingList({
         },
       }
     );
-
+    functions.logger.warn("posting mailchimp")
     await axios.post(
       `https://us2.api.mailchimp.com/3.0/lists/${listID}/members/${emailHash}/tags`,
       {
         tags: [
           {
-            name: `March 2021 ${
-              level == 'beginner' ? 'Beginner' : 'Intermediate'
-            } Class`,
+            name: `Bronze Video Class`,
             status: 'active',
           },
           ...(fullFinancialAid
             ? [
                 {
-                  name: `March 2021 Full Financial Aid`,
+                  name: `Bronze Video Class Full Financial Aid`,
                   status: 'active',
                 },
               ]
@@ -99,8 +110,9 @@ export default async function updateMailingList({
         },
       }
     );
+    functions.logger.warn("done posting to mailchimp")
   } catch (error) {
-    console.log('INTERNAL ERROR', error);
+    functions.logger.warn('INTERNAL ERROR', error);
     throw new functions.https.HttpsError(
       'internal',
       'An internal error occurred while trying to send the order confirmation email.'

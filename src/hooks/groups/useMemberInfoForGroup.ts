@@ -1,7 +1,8 @@
-import * as React from 'react';
-import { useNotificationSystem } from '../../context/NotificationSystemContext';
+import { getFunctions, httpsCallable } from 'firebase/functions';
+import React from 'react';
+import toast from 'react-hot-toast';
 import { GroupData } from '../../models/groups/groups';
-import useFirebase from '../useFirebase';
+import { useFirebaseApp } from '../useFirebase';
 
 export type MemberInfo = {
   displayName: string;
@@ -16,10 +17,9 @@ let cachedData: {
 
 export default function getMemberInfoForGroup(group: GroupData) {
   const [memberInfo, setMemberInfo] = React.useState<MemberInfo[]>(null);
-  const notifications = useNotificationSystem();
 
-  useFirebase(
-    firebase => {
+  useFirebaseApp(
+    firebaseApp => {
       setMemberInfo(null);
       if (!group) return;
 
@@ -34,11 +34,12 @@ export default function getMemberInfoForGroup(group: GroupData) {
         group.memberIds.some(id => !cachedData.data.find(x => x.uid === id)) ||
         cachedData.data.some(x => !group.memberIds.includes(x.uid))
       ) {
-        firebase
-          .functions()
-          .httpsCallable('groups-getMembers')({
-            groupId: group.id,
-          })
+        httpsCallable<any, any>(
+          getFunctions(firebaseApp),
+          'groups-getMembers'
+        )({
+          groupId: group.id,
+        })
           .then(d => {
             if (d?.data?.length > 0) {
               d.data.sort((a, b) => a.displayName.localeCompare(b.displayName));
@@ -48,14 +49,11 @@ export default function getMemberInfoForGroup(group: GroupData) {
                 data: d.data,
               };
             } else {
-              notifications.addNotification({
-                level: 'error',
-                message: 'Error: Failed to fetch member info for leaderboard',
-              });
+              toast.error('Error: Failed to fetch member info for leaderboard');
             }
           })
           .catch(e => {
-            notifications.showErrorNotification(e);
+            toast.error(e.message);
           });
       }
     },

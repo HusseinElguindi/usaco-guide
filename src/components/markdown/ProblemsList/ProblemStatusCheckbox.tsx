@@ -138,7 +138,7 @@ export default function ProblemStatusCheckbox({
 }: {
   problem: ProblemInfo;
   size?: 'small' | 'large';
-}) {
+}): JSX.Element {
   const darkMode = useDarkMode();
   const markdownLayoutContext = useContext(MarkdownLayoutContext);
   const { userProgressOnModules, setModuleProgress } = useContext(
@@ -151,8 +151,9 @@ export default function ProblemStatusCheckbox({
     if (
       markdownLayoutContext === null ||
       !markdownLayoutContext.markdownLayoutInfo?.id
-    )
+    ) {
       return;
+    }
     const { markdownLayoutInfo } = markdownLayoutContext;
     const moduleProgress =
       (userProgressOnModules && userProgressOnModules[markdownLayoutInfo.id]) ||
@@ -164,9 +165,9 @@ export default function ProblemStatusCheckbox({
     userProgressOnProblems[problem.uniqueId] || 'Not Attempted';
   const color: { [key in ProblemProgress]: string } = {
     'Not Attempted': 'bg-gray-200 dark:bg-gray-700',
-    Solving: 'bg-yellow-300 dark:bg-yellow-500',
-    Reviewing: 'bg-red-500 dark:bg-red-600',
+    Solving: 'bg-orange-400 dark:bg-orange-400',
     Solved: 'bg-green-500 dark:bg-green-600',
+    Reviewing: 'bg-red-500 dark:bg-red-600',
     Ignored: 'bg-red-100 dark:bg-red-900',
     Skipped: 'bg-blue-300 dark:bg-blue-700',
   };
@@ -182,8 +183,9 @@ export default function ProblemStatusCheckbox({
               tippyRef.current.hide();
               setUserProgressOnProblems(problem.uniqueId, progress);
               const solved = x => x == 'Reviewing' || x == 'Solved';
-              if (progress == 'Solving' || solved(progress))
+              if (progress == 'Solving' || solved(progress)) {
                 updateModuleProgressToPracticing();
+              }
               if (!solved(status) && solved(progress)) {
                 showConfetti();
               }
@@ -195,7 +197,7 @@ export default function ProblemStatusCheckbox({
       interactive={true}
       trigger="click"
       placement="bottom-start"
-      theme={darkMode ? "dark" : "light"}
+      theme={darkMode ? 'dark' : 'light'}
     >
       <span
         // onClick={handleClick}

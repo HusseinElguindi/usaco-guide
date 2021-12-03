@@ -15,7 +15,7 @@
       }
     }
   ],
-  "usaco": [
+  "easier": [
     {
       "uniqueId": "ac-IndependentSet",
       "name": "Independent Set",
@@ -37,8 +37,20 @@
       "isStarred": false,
       "tags": ["Tree", "DP"],
       "solutionMetadata": {
-        "kind": "USACO",
-        "usacoId": "766"
+        "kind": "internal"
+      }
+    },
+    {
+      "uniqueId": "cf-161D",
+      "name": "Distance in Tree",
+      "url": "https://codeforces.com/contest/161/problem/D",
+      "source": "CF",
+      "difficulty": "Normal",
+      "isStarred": false,
+      "tags": ["Tree", "DP"],
+      "solutionMetadata": {
+        "kind": "autogen-label-from-site",
+        "site": "CF"
       }
     },
     {
@@ -55,13 +67,38 @@
       }
     },
     {
+      "uniqueId": "cf-1521D",
+      "name": "Nastia Plays with a Tree",
+      "url": "https://codeforces.com/contest/1521/problem/D",
+      "source": "CF",
+      "difficulty": "Normal",
+      "isStarred": false,
+      "tags": ["Tree", "Greedy"],
+      "solutionMetadata": {
+        "kind": "autogen-label-from-site",
+        "site": "CF"
+      }
+    },
+    {
       "uniqueId": "poi-parade",
       "name": "Parade",
       "url": "https://szkopul.edu.pl/problemset/problem/1QaUWE_ePAmitZjgAszOVD1U/site/?key=statement",
       "source": "POI",
       "difficulty": "Normal",
       "isStarred": false,
-      "tags": [],
+      "tags": ["Tree"],
+      "solutionMetadata": {
+        "kind": "internal"
+      }
+    },
+    {
+      "uniqueId": "cf-440D",
+      "name": "Berland Federalization",
+      "url": "https://codeforces.com/problemset/problem/440/D",
+      "source": "CF",
+      "difficulty": "Normal",
+      "isStarred": false,
+      "tags": ["Tree", "DP"],
       "solutionMetadata": {
         "kind": "internal"
       }
@@ -73,7 +110,7 @@
       "source": "Gold",
       "difficulty": "Hard",
       "isStarred": false,
-      "tags": ["Greedy"],
+      "tags": ["Tree", "Greedy"],
       "solutionMetadata": {
         "kind": "USACO",
         "usacoId": "1019"

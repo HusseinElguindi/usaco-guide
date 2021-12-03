@@ -1,16 +1,18 @@
-import * as React from 'react';
-import { useNotificationSystem } from '../../../context/NotificationSystemContext';
+import type { DocumentReference } from 'firebase/firestore';
+import { doc, getDoc, getFirestore } from 'firebase/firestore';
+import React from 'react';
+import toast from 'react-hot-toast';
 import { useActiveGroup } from '../../../hooks/groups/useActiveGroup';
 import { useActivePostProblems } from '../../../hooks/groups/useActivePostProblems';
-import getMemberInfoForGroup from '../../../hooks/groups/useMemberInfoForGroup';
+import useLeaderboardData from '../../../hooks/groups/useLeaderboardData';
 import { usePost } from '../../../hooks/groups/usePost';
-import useFirebase from '../../../hooks/useFirebase';
-import { submissionConverter } from '../../../models/groups/problem';
+import { useFirebaseApp } from '../../../hooks/useFirebase';
+import { Submission } from '../../../models/groups/problem';
 import Layout from '../../layout';
 import SEO from '../../seo';
-import TextTooltip from '../../Tooltip/TextTooltip';
 import TopNavigationBar from '../../TopNavigationBar/TopNavigationBar';
 import Breadcrumbs from '../Breadcrumbs';
+import { LeaderboardTable } from '../LeaderboardTable/LeaderboardTable';
 import { useProblemSubmissionPopupAction } from '../ProblemSubmissionPopup';
 
 export default function PostLeaderboardPage(props) {
@@ -22,68 +24,39 @@ export default function PostLeaderboardPage(props) {
   const activeGroup = useActiveGroup();
   const post = usePost(postId);
   const { problems } = useActivePostProblems();
-  const firebase = useFirebase();
-  const notifications = useNotificationSystem();
-  const leaderboard = activeGroup.groupData.leaderboard;
-
-  const members = getMemberInfoForGroup(activeGroup.groupData);
-  const leaderboardItems = React.useMemo(() => {
-    if (!leaderboard || !members || !problems) return null;
-
-    const leaderboardSum = {};
-    const postID = post.id;
-    for (const problemID of Object.keys(leaderboard[postID] || {})) {
-      for (const userID of Object.keys(leaderboard[postID][problemID] || {})) {
-        if (!(userID in leaderboardSum)) leaderboardSum[userID] = 0;
-        leaderboardSum[userID] +=
-          leaderboard[postID][problemID][userID].bestScore;
-      }
-    }
-    const data = activeGroup.groupData.memberIds
-      .map(id => ({
-        member: members.find(member => member.uid === id),
-        problemDetails: problems.map(
-          problem => leaderboard[postID]?.[problem.id]?.[id] || null
-        ),
-        points: leaderboardSum[id] ?? 0,
-      }))
-      .filter(x => !!x.member); // filter is needed in case a member just joined and their data isn't available yet
-    return data.sort((a, b) => b.points - a.points);
-  }, [leaderboard, members, problems]);
+  const firebaseApp = useFirebaseApp();
+  const leaderboard = useLeaderboardData({
+    groupId: activeGroup.activeGroupId,
+    postId: postId,
+    maxResults: 50,
+  });
 
   const openProblemSubmissionPopup = useProblemSubmissionPopupAction();
   const handleOpenSubmissionsDetail = (
     problemId: string,
     submissionId: string
   ) => {
-    console.log(problemId, submissionId);
-    firebase
-      .firestore()
-      .collection('groups')
-      .doc(activeGroup.activeGroupId)
-      .collection('posts')
-      .doc(postId)
-      .collection('problems')
-      .doc(problemId)
-      .collection('submissions')
-      .doc(submissionId)
-      .withConverter(submissionConverter)
-      .get()
+    getDoc(
+      doc(
+        getFirestore(firebaseApp),
+        'groups',
+        activeGroup.activeGroupId,
+        'posts',
+        postId,
+        'problems',
+        problemId,
+        'submissions',
+        submissionId
+      ) as DocumentReference<Submission>
+    )
       .then(doc => {
-        const submission = doc.data();
+        const submission = { id: doc.id, ...doc.data() };
         openProblemSubmissionPopup(submission);
       })
       .catch(e => {
-        notifications.addNotification({
-          level: 'error',
-          message: "Couldn't get submission: " + e.message,
-        });
+        toast.error("Couldn't get submission: " + e.message);
       });
   };
-  console.log(leaderboardItems);
-
-  const problemCellStyles =
-    'w-16 text-center border-l border-gray-200 dark:border-gray-700';
 
   return (
     <Layout>
@@ -119,97 +92,32 @@ export default function PostLeaderboardPage(props) {
         <div className="h-6" />
 
         <div className="flex flex-col">
-          <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-            <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-              <div className="overflow-hidden shadow border-b border-gray-200 dark:border-transparent sm:rounded-lg">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead className="bg-gray-50 dark:bg-gray-800">
-                    <tr>
-                      <th
-                        scope="col"
-                        className="py-3 text-center border-r border-gray-200 dark:border-gray-700 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider w-16"
-                      >
-                        #
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                      >
-                        Name
-                      </th>
-                      <th
-                        scope="col"
-                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                      >
-                        Points
-                      </th>
-                      {/*<th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">*/}
-                      {/*  Last Submission Time*/}
-                      {/*</th>*/}
-                      {problems?.map((problem, idx) => (
-                        <th
-                          scope="col"
-                          className={
-                            problemCellStyles +
-                            ' py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider'
-                          }
-                          key={problem.id}
-                        >
-                          <TextTooltip content={problem.name}>
-                            P{idx + 1}
-                          </TextTooltip>
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {leaderboardItems?.map((item, idx) => (
-                      <tr
-                        className={
-                          idx % 2 === 0
-                            ? 'bg-white dark:bg-gray-900'
-                            : 'bg-gray-50 dark:bg-gray-800'
-                        }
-                        key={item.member.uid}
-                      >
-                        <td className="text-center border-r border-gray-200 dark:border-gray-700 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100 w-16">
-                          {idx + 1}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
-                          {item.member.displayName}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
-                          {item.points}
-                        </td>
-                        {/*<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">*/}
-                        {/*  MMMM Do YYYY, h:mm:ss a*/}
-                        {/*</td>*/}
-                        {item.problemDetails.map((details, idx) => (
-                          <td
-                            className={
-                              problemCellStyles +
-                              ' py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 font-medium' +
-                              (details ? ' cursor-pointer' : '')
-                            }
-                            key={problems[idx].id}
-                            onClick={() =>
-                              details &&
-                              handleOpenSubmissionsDetail(
-                                problems[idx].id,
-                                details.bestScoreSubmissionId
-                              )
-                            }
-                          >
-                            {parseFloat(details?.bestScore?.toFixed(1) || '0')}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+          <LeaderboardTable
+            columns={problems?.map(problem => ({
+              id: problem.id,
+              tooltip: problem.name,
+            }))}
+            rows={leaderboard?.map(item => ({
+              id: item.userInfo.uid,
+              name: item.userInfo.displayName,
+              points: item[postId]?.totalPoints ?? 0,
+              items: problems?.map(problem => ({
+                id: problem.id,
+                value:
+                  item.details[postId]?.[problem.id]?.bestScore?.toFixed(1) ||
+                  '0',
+                payload: activeGroup.showAdminView &&
+                  item.details[postId]?.[problem.id] && {
+                    problemId: problem.id,
+                    submissionId:
+                      item.details[postId]?.[problem.id]?.bestScoreSubmissionId,
+                  },
+              })),
+            }))}
+            onCellClick={(_, { problemId, submissionId }) => {
+              handleOpenSubmissionsDetail(problemId, submissionId);
+            }}
+          />
         </div>
       </div>
     </Layout>

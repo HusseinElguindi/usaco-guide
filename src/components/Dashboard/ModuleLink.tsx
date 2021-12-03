@@ -150,21 +150,23 @@ function time_ago(time) {
   }
   let i = 0,
     format;
-  while ((format = time_formats[i++]))
+  while ((format = time_formats[i++])) {
     if (seconds < format[0]) {
       if (typeof format[2] == 'string') return format[list_choice];
-      else
+      else {
         return Math.floor(seconds / format[2]) + ' ' + format[1] + ' ' + token;
+      }
     }
+  }
   return time;
 }
 
-function timeAgoString(time) {
+function timeAgoString(time): string {
   const res = time_ago(time);
   return res && `Updated: ${res}`;
 }
 
-const ModuleLink = ({ link }: { link: ModuleLinkInfo }) => {
+const ModuleLink = ({ link }: { link: ModuleLinkInfo }): JSX.Element => {
   const { userProgressOnModules } = useContext(UserDataContext);
   const progress = userProgressOnModules[link.id] || 'Not Started';
 

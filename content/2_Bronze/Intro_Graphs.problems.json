@@ -22,8 +22,7 @@
       "isStarred": false,
       "tags": ["Coloring"],
       "solutionMetadata": {
-        "kind": "USACO",
-        "usacoId": "916"
+        "kind": "internal"
       }
     },
     {
@@ -45,7 +44,7 @@
       "source": "Bronze",
       "difficulty": "Hard",
       "isStarred": false,
-      "tags": ["Path", "Permutation"],
+      "tags": ["Permutation"],
       "solutionMetadata": {
         "kind": "internal"
       }

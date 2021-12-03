@@ -1,7 +1,9 @@
-import * as React from 'react';
+import { updateProfile } from 'firebase/auth';
+import React from 'react';
+import toast from 'react-hot-toast';
 import UserDataContext from '../../context/UserDataContext/UserDataContext';
 
-export default function Profile() {
+export default function Profile(): JSX.Element {
   const { firebaseUser } = React.useContext(UserDataContext);
 
   const [name, setName] = React.useState(firebaseUser?.displayName);
@@ -16,10 +18,9 @@ export default function Profile() {
 
   const handleSubmit = e => {
     e.preventDefault();
-    firebaseUser.updateProfile({ displayName: name });
+    updateProfile(firebaseUser, { displayName: name });
 
-    // todo: notification system or something
-    alert('Saved!');
+    toast.success('Username updated');
   };
 
   return (
